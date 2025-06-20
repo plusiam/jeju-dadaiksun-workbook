@@ -113,6 +113,27 @@
         .progress-line-inactive {
             background-color: #4b5563; /* gray-600 */
         }
+        
+        /* 알림 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .notification {
+            animation: fadeIn 0.3s ease-out forwards, fadeOut 0.5s ease-in forwards 2.5s;
+        }
+        
+        /* 백업 안내 섹션 */
+        .backup-guide {
+            border: 1px solid #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -140,6 +161,20 @@
                 </div>
             </div>
         </header>
+
+        <!-- 백업 안내 섹션 -->
+        <div id="backup-guide" class="backup-guide p-4 rounded-lg mb-6">
+            <h3 class="text-lg font-semibold text-blue-300 mb-2">💾 작업 저장 안내</h3>
+            <p class="text-gray-300 mb-2">작성 내용은 <span class="text-green-300">자동으로 저장</span>되지만, <strong>브라우저를 바꾸거나 다른 기기에서 계속 작업하려면</strong> 아래 방법을 따라주세요:</p>
+            <ol class="list-decimal list-inside text-gray-300 space-y-1 ml-2">
+                <li><span class="text-green-300 font-medium">"작업 백업하기" 버튼을 눌러</span> 작업을 파일로 저장하세요</li>
+                <li>저장된 파일을 이메일, 메신저, 클라우드에 보관하세요</li>
+                <li>다른 기기에서 작업을 계속하려면 "백업 불러오기"로 저장한 파일을 선택하세요</li>
+            </ol>
+            <div class="text-right mt-2">
+                <button id="hide-guide-btn" class="text-sm text-gray-400 hover:text-white">닫기</button>
+            </div>
+        </div>
 
         <div id="tab-buttons" class="flex flex-wrap justify-center space-x-1 rounded-lg p-1 bg-gray-800 mb-6">
             <button data-tab="guide" class="tab-button flex-1 py-2 px-4 rounded-md text-sm sm:text-base font-semibold transition-colors duration-300 tab-active">안내/일정</button>
@@ -458,10 +493,28 @@
             </main>
         </form>
         
-        <footer class="mt-8 flex justify-center items-center space-x-4">
-            <button id="reset-btn" class="bg-gray-600 hover:bg-gray-700 text-gray-300 font-bold py-2 px-4 rounded-lg">
-                전체 초기화
-            </button>
+        <!-- 백업/불러오기 영역 -->
+        <div class="bg-slate-800 p-4 rounded-lg shadow-md mt-8">
+            <div class="text-center mb-3">
+                <h4 class="text-blue-300 font-semibold">📱 다른 기기에서도 작업을 이어가려면</h4>
+            </div>
+            <div class="flex flex-wrap justify-center items-center space-x-2 md:space-x-4">
+                <button id="export-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <span class="mr-1">💾</span> 작업 백업하기
+                </button>
+                <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg cursor-pointer flex items-center">
+                    <span class="mr-1">📂</span> 백업 불러오기
+                    <input type="file" id="import-file" accept=".jeju,.json" class="hidden" />
+                </label>
+                <button id="reset-btn" class="bg-gray-600 hover:bg-gray-700 text-gray-300 font-bold py-2 px-4 rounded-lg">
+                    전체 초기화
+                </button>
+            </div>
+            <p class="text-xs text-center text-gray-400 mt-3">* 백업 파일은 다른 기기에서 이어서 작업할 때 필요합니다</p>
+        </div>
+        
+        <footer class="mt-4 text-center text-sm text-gray-500">
+            <p>개발: AISL Lab | 문의: 한기쌤 | 2025년 대구 교사연구회</p>
         </footer>
     </div>
 
@@ -483,12 +536,20 @@
         </div>
     </div>
 
+    <!-- 자동 저장 알림 -->
+    <div id="autosave-indicator" class="fixed bottom-4 right-4 bg-green-600 text-white px-3 py-1 rounded-lg text-sm opacity-0 transition-opacity duration-300">
+        ✅ 자동 저장됨
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const STORAGE_KEY = 'jejuFieldTripData';
         const IMAGES_KEY = 'jejuFieldTripImages';
+        const BACKUP_GUIDE_KEY = 'jejuBackupGuideShown';
         const form = document.getElementById('main-form');
         const savableInputs = form.querySelectorAll('.savable');
+        const autosaveIndicator = document.getElementById('autosave-indicator');
+        const backupGuide = document.getElementById('backup-guide');
 
         // ======== 이미지 저장 및 진행률 관리 ========
         
@@ -624,6 +685,9 @@
                 
                 btn.innerHTML = '✅ 완료! 이미지가 저장되었습니다';
                 btn.className = 'bg-gray-600 text-white font-bold py-3 px-6 rounded-lg cursor-not-allowed';
+                
+                // 작업이 완료되었으니 백업을 권장
+                showNotification('🔔 중요한 작업을 완료했습니다! 아래 "작업 백업하기" 버튼으로 저장하세요', 'info', 5000);
                 
             } catch (error) {
                 console.error('이미지 생성 실패:', error);
@@ -792,6 +856,9 @@
                 }
             });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            
+            // 자동 저장 표시
+            showAutosaveIndicator();
         };
 
         // 데이터 불러오기 함수
@@ -821,6 +888,116 @@
                 }
             });
         };
+        
+        // ======== 백업 관련 기능 ========
+        
+        // 데이터 내보내기 함수
+        const exportData = () => {
+            // 현재 입력 데이터와 이미지를 포함한 객체 생성
+            const exportObj = {
+                formData: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
+                images: JSON.parse(localStorage.getItem(IMAGES_KEY) || '{}')
+            };
+            
+            // 학생 이름과 학교 정보 가져오기
+            const studentName = document.getElementById('student_name').value || '학생';
+            const schoolName = document.getElementById('student_school').value || '';
+            
+            // JSON 파일로 변환하여 다운로드
+            const dataStr = JSON.stringify(exportObj);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileName = `제주학습_${schoolName ? schoolName + '_' : ''}${studentName}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/\s/g, '')}.jeju`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileName);
+            linkElement.click();
+            
+            // 성공 메시지 표시
+            showNotification('✅ 백업 완료! 파일이 저장되었습니다', 'success');
+        };
+
+        // 데이터 불러오기 함수
+        const importData = (file) => {
+            // 파일 확장자 확인 (.json 또는 .jeju)
+            if (!file.name.endsWith('.json') && !file.name.endsWith('.jeju')) {
+                showNotification('❌ 올바른 백업 파일이 아닙니다', 'error');
+                return;
+            }
+            
+            showNotification('⏳ 백업 파일 불러오는 중...', 'info');
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    // 불러온 데이터 저장
+                    if (importedData.formData) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(importedData.formData));
+                    }
+                    
+                    if (importedData.images) {
+                        localStorage.setItem(IMAGES_KEY, JSON.stringify(importedData.images));
+                    }
+                    
+                    // 성공 메시지와 함께 페이지 새로고침
+                    showNotification('✅ 백업을 성공적으로 불러왔습니다!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                    
+                } catch (error) {
+                    showNotification('❌ 파일을 읽는 중 오류가 발생했습니다', 'error');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        // 알림 표시 함수
+        const showNotification = (message, type = 'info', duration = 3000) => {
+            // 이미 있는 알림 제거
+            const existingNotification = document.getElementById('notification');
+            if (existingNotification) {
+                document.body.removeChild(existingNotification);
+            }
+            
+            // 알림 타입에 따른 색상 설정
+            let bgColor = 'bg-blue-600';
+            if (type === 'success') bgColor = 'bg-green-600';
+            if (type === 'error') bgColor = 'bg-red-600';
+            
+            // 알림 요소 생성
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 notification`;
+            notification.innerHTML = message;
+            
+            // 알림 추가 및 자동 제거
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, duration);
+        };
+        
+        // 자동 저장 표시기 함수
+        const showAutosaveIndicator = () => {
+            // 자동 저장 표시기 표시
+            autosaveIndicator.style.opacity = '1';
+            
+            // 2초 후 자동 숨김
+            setTimeout(() => {
+                autosaveIndicator.style.opacity = '0';
+            }, 2000);
+        };
 
         // 각 입력 요소에 자동 저장 이벤트 리스너 추가
         savableInputs.forEach(input => {
@@ -845,9 +1022,28 @@
             });
         });
         
+        // 주기적 자동 저장 (3분마다)
+        setInterval(saveData, 180000);
+        
+        // 페이지를 떠날 때 저장
+        window.addEventListener('beforeunload', saveData);
+        
         // 페이지 로드 시 데이터 불러오기 실행
         loadData();
         loadSavedImages();
+        
+        // 백업 안내 표시 관리
+        if (!localStorage.getItem(BACKUP_GUIDE_KEY)) {
+            backupGuide.style.display = 'block';
+        } else {
+            backupGuide.style.display = 'none';
+        }
+        
+        // 백업 안내 닫기 버튼
+        document.getElementById('hide-guide-btn').addEventListener('click', () => {
+            backupGuide.style.display = 'none';
+            localStorage.setItem(BACKUP_GUIDE_KEY, 'true');
+        });
 
         // ======== 일차별 완료 버튼 이벤트 ========
         document.getElementById('complete-day1-btn').addEventListener('click', () => generateDayImage('day1'));
@@ -856,6 +1052,14 @@
         
         // 안내/일정 다운로드 버튼 이벤트
         document.getElementById('download-guide-btn').addEventListener('click', downloadGuidePDF);
+        
+        // 백업/복원 버튼 이벤트
+        document.getElementById('export-btn').addEventListener('click', exportData);
+        document.getElementById('import-file').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                importData(e.target.files[0]);
+            }
+        });
 
         // ======== 개인/팀 모드 전환 기능 ========
         const modeRadios = form.querySelectorAll('input[name="mode"]');
@@ -1227,13 +1431,20 @@
                 tabButtons.querySelector('button[data-tab="guide"]').click();
                 updateProgressIndicator('guide');
                 
-                alert('모든 내용과 저장된 이미지가 삭제되었습니다.');
+                showNotification('✅ 모든 내용과 저장된 이미지가 삭제되었습니다.', 'success');
             }
         });
         
         // 페이지 로드 시 초기 진행 표시기 설정
         // 기본적으로 안내/일정 탭이 선택된 상태
         updateProgressIndicator('guide');
+        
+        // 첫 방문 시 백업 기능에 대한 안내 알림
+        if (localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(BACKUP_GUIDE_KEY)) {
+            setTimeout(() => {
+                showNotification('🔔 다른 기기나 브라우저에서 작업하려면 "작업 백업하기" 버튼을 사용하세요', 'info', 6000);
+            }, 3000);
+        }
     });
     </script>
 </body>
