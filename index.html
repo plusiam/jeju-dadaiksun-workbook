@@ -6,6 +6,8 @@
     <title>다다익선 제주 현장학습</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         /* 기본 폰트 및 배경 설정 */
         body {
@@ -64,6 +66,35 @@
             #result-modal-header button, #print-btn {
                 display: none;
             }
+        }
+        
+        /* PDF 생성 로딩 오버레이 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -786,50 +817,140 @@
         
         closeModalBtn.addEventListener('click', () => resultModal.classList.add('hidden'));
         
-        printBtn.addEventListener('click', async () => {
+        // PDF 생성 시작 시 로딩 오버레이 표시
+        function showLoading(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div>${message}</div>
+            `;
+            overlay.id = 'pdf-loading-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        // PDF 생성 완료 시 로딩 오버레이 제거
+        function hideLoading() {
+            const overlay = document.getElementById('pdf-loading-overlay');
+            if (overlay) {
+                document.body.removeChild(overlay);
+            }
+        }
+        
+        // 인쇄 버튼 이벤트 핸들러 교체
+        printBtn.addEventListener('click', async function() {
             try {
-                printBtn.innerHTML = '📄 인쇄용 이미지 생성 중...';
-                printBtn.disabled = true;
+                showLoading('PDF 생성 중... 잠시만 기다려주세요');
+                this.innerHTML = '📄 PDF 생성 중...';
+                this.disabled = true;
                 
-                // 모달 내용을 고화질 이미지로 변환
-                const modalContent = document.getElementById('result-content');
-                const canvas = await html2canvas(modalContent, {
-                    backgroundColor: '#1e293b',
-                    scale: 3, // 고화질
-                    useCORS: true,
-                    allowTaint: true,
-                    width: modalContent.scrollWidth,
-                    height: modalContent.scrollHeight
-                });
+                // jsPDF 초기화
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
                 
-                // 새 창에서 이미지 표시 후 인쇄
-                const imgData = canvas.toDataURL('image/png');
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <html>
-                        <head><title>제주 현장학습 완전정복</title></head>
-                        <body style="margin:0; padding:20px; text-align:center;">
-                            <img src="${imgData}" style="max-width:100%; height:auto;" />
-                        </body>
-                    </html>
-                `);
-                printWindow.document.close();
-                printWindow.focus();
+                // 결과 콘텐츠 요소
+                const resultContent = document.getElementById('result-content');
                 
-                setTimeout(() => {
-                    printWindow.print();
-                    printWindow.close();
-                }, 1000);
+                // 콘텐츠 전체 캡처 전 배경색 임시 변경
+                const originalBgColor = resultContent.style.backgroundColor;
+                resultContent.style.backgroundColor = '#ffffff';
                 
-                printBtn.innerHTML = '🖨️ 인쇄하기';
-                printBtn.disabled = false;
+                // 콘텐츠를 섹션별로 분리
+                const sections = [
+                    document.querySelector('#result-modal-header').parentElement, // 제목 섹션
+                    ...resultContent.querySelectorAll('.mb-8') // 일차별 섹션들
+                ];
+                
+                // 각 섹션을 개별 페이지로 변환
+                for (let i = 0; i < sections.length; i++) {
+                    const section = sections[i];
+                    
+                    // 첫 페이지가 아니면 새 페이지 추가
+                    if (i > 0) {
+                        doc.addPage();
+                    }
+                    
+                    // 이미지 로딩 대기
+                    const images = section.querySelectorAll('img');
+                    await Promise.all([...images].map(img => {
+                        if (!img.src || img.complete) return Promise.resolve();
+                        return new Promise(resolve => {
+                            img.onload = resolve;
+                            img.onerror = resolve;
+                        });
+                    }));
+                    
+                    // 섹션을 캔버스로 변환
+                    const canvas = await html2canvas(section, {
+                        scale: 2, // 고품질
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        onclone: (clonedDoc, clonedElement) => {
+                            // 클론된 요소의 스타일 수정
+                            clonedElement.style.color = '#000000';
+                            clonedElement.querySelectorAll('*').forEach(el => {
+                                if (el.style) {
+                                    el.style.color = el.tagName === 'H2' || el.tagName === 'H3' || 
+                                                    el.tagName === 'H4' ? '#000066' : '#000000';
+                                    el.style.backgroundColor = 'transparent';
+                                }
+                            });
+                        }
+                    });
+                    
+                    // 캔버스를 PDF에 추가
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const imgWidth = 190; // A4 너비에서 여백 제외
+                    const pageHeight = 277; // A4 높이에서 여백 제외
+                    
+                    // 이미지 높이 계산
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    // 높이가 페이지를 초과하면 여러 페이지로 분할
+                    if (imgHeight <= pageHeight) {
+                        // 한 페이지에 들어가는 경우
+                        doc.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+                    } else {
+                        // 여러 페이지에 걸치는 경우
+                        let heightLeft = imgHeight;
+                        let position = 0;
+                        let page = 0;
+                        
+                        while (heightLeft > 0) {
+                            doc.addImage(imgData, 'JPEG', 10, 10 - position, imgWidth, imgHeight);
+                            heightLeft -= pageHeight;
+                            position += pageHeight;
+                            
+                            if (heightLeft > 0) {
+                                doc.addPage();
+                                page++;
+                            }
+                        }
+                    }
+                }
+                
+                // 배경색 복원
+                resultContent.style.backgroundColor = originalBgColor;
+                
+                // 파일명 설정
+                const studentName = document.getElementById('student_name').value.trim() || '학생';
+                const fileName = `제주학습_보고서_${studentName}_${new Date().toISOString().slice(0,10)}.pdf`;
+                
+                // PDF 다운로드
+                doc.save(fileName);
+                
+                hideLoading();
+                this.innerHTML = '🖨️ 인쇄하기';
+                this.disabled = false;
                 
             } catch (error) {
-                console.error('인쇄 준비 실패:', error);
-                printBtn.innerHTML = '🖨️ 인쇄하기';
-                printBtn.disabled = false;
-                // 기본 인쇄 기능으로 대체
-                window.print();
+                hideLoading();
+                console.error('PDF 생성 오류:', error);
+                alert('PDF 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+                this.innerHTML = '🖨️ 인쇄하기';
+                this.disabled = false;
             }
         });
 
