@@ -121,17 +121,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 익명화 함수
-    const anonymizeInfo = (name, school) => {
+    const anonymizeInfo = (name, classNum) => {
         const anonymousMode = document.getElementById('anonymous_mode').checked;
         if (anonymousMode) {
             // 익명 모드일 때
             const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
             return {
                 name: `제주 탐험가 #${randomNum}`,
-                school: school || '제주 학교'
+                classInfo: '글로컬반'
             };
         }
-        return { name, school };
+        return { 
+            name: name, 
+            classInfo: classNum ? `글로컬 ${classNum}반` : '미입력'
+        };
     };
 
     // 각 일차별 이미지 생성 및 다운로드
@@ -155,10 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const isTeamMode = form.querySelector('input[name="mode"]:checked').value === 'team';
             const getTextValue = (id) => document.getElementById(id).value.trim() || '작성 안함';
             
-            // 익명화 처리
+            // 반 정보와 이름 가져오기
+            const studentClass = document.getElementById('student_class').value;
             const originalName = getTextValue('student_name');
-            const originalSchool = getTextValue('student_school');
-            const { name: displayName, school: displaySchool } = anonymizeInfo(originalName, originalSchool);
+            
+            // 익명화 처리
+            const { name: displayName, classInfo } = anonymizeInfo(originalName, studentClass);
             
             const basicInfo = document.createElement('div');
             basicInfo.style.marginBottom = '20px';
@@ -178,8 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             basicInfo.innerHTML = `
                 <h3 style="font-size: 18px; font-weight: bold; color: #93c5fd; margin-bottom: 10px;">✈️ 다다익선 제주 현장학습</h3>
-                <p><strong>학교:</strong> ${displaySchool}</p>
-                <p><strong>학년:</strong> ${getTextValue('student_grade')}</p>
+                <p><strong>소속:</strong> ${classInfo}</p>
                 <p><strong>이름:</strong> ${displayName}</p>
                 ${teamInfoHtml}
             `;
@@ -438,15 +442,16 @@ document.addEventListener('DOMContentLoaded', () => {
             images: JSON.parse(localStorage.getItem(IMAGES_KEY) || '{}')
         };
         
-        // 학생 이름과 학교 정보 가져오기
+        // 학생 이름과 반 정보 가져오기
         const studentName = document.getElementById('student_name').value || '학생';
-        const schoolName = document.getElementById('student_school').value || '';
+        const studentClass = document.getElementById('student_class').value;
+        const classInfo = studentClass ? `글로컬${studentClass}반_` : '';
         
         // JSON 파일로 변환하여 다운로드
         const dataStr = JSON.stringify(exportObj);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
         
-        const exportFileName = `제주학습_${schoolName ? schoolName + '_' : ''}${studentName}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/\s/g, '')}.jeju`;
+        const exportFileName = `제주학습_${classInfo}${studentName}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/\s/g, '')}.jeju`;
         
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
@@ -736,11 +741,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalTitle = document.querySelector('#result-modal-header h2');
         modalTitle.textContent = `🏆 제주 현장학습 완전정복${titleSuffix}`;
 
+        // 반 정보 가져오기
+        const studentClass = document.getElementById('student_class').value;
+        const classInfo = studentClass ? `글로컬 ${studentClass}반` : '미입력';
+
         // 저장된 이미지들로 통합 보고서 생성
         let finalContent = `
             <div class="text-center mb-6">
                 <h3 class="text-2xl font-bold text-blue-300 mb-2">✈️ 2박 3일 제주 현장학습 완전정복</h3>
-                <p class="text-gray-400">${getTextValue('student_school')} ${getTextValue('student_grade')} ${getTextValue('student_name')}</p>
+                <p class="text-gray-400">${classInfo} ${getTextValue('student_name')}</p>
                 ${isTeamMode && getTextValue('team_name') !== '작성 안함' ? `<p class="text-blue-300 font-semibold">🏆 ${getTextValue('team_name')}</p>` : ''}
                 <div class="mt-4 text-sm text-gray-500">
                     생성일: ${new Date().toLocaleDateString('ko-KR')}
