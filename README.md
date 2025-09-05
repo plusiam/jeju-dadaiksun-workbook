@@ -2,6 +2,22 @@
 
 제주도 2박 3일 현장학습을 위한 디지털 워크북입니다. 학생들이 현장학습 동안 방문한 장소에서의 경험과 배움을 기록하고, 사진과 함께 결과물을 저장할 수 있는 웹 애플리케이션입니다.
 
+## 🚀 주요 업데이트 (2025.9.6)
+
+### 🌐 PWA (Progressive Web App) 지원
+- **오프라인 사용 가능**: Service Worker를 통한 오프라인 지원
+- **홈 화면 설치**: 모바일에서 앱처럼 설치하여 사용 가능
+- **자동 캐싱**: 한 번 방문한 페이지는 오프라인에서도 작동
+
+### 🔐 개인정보 보호 강화
+- **익명 모드**: 이미지 생성 시 개인정보를 보호하는 익명 옵션 추가
+- **워터마크 자동 추가**: 생성된 이미지에 자동으로 워터마크 삽입
+- **온디바이스 처리**: 모든 데이터는 사용자 기기에서만 처리 (서버 전송 없음)
+
+### 🏠 사용성 개선
+- **홈 버튼 추가**: 각 일차 페이지에서 바로 메인 화면으로 이동 가능
+- **코드 모듈화**: JavaScript를 별도 파일로 분리하여 성능 향상
+
 ## 📅 2025년 일정 변경사항
 - **날짜**: 2025년 10월 17일(금) ~ 10월 19일(일)
 - **항공편**: 제주항공 7C711 (출발) / 7C702 (귀국)
@@ -34,35 +50,140 @@
 - **PDF 변환 기능** - 고품질 PDF 파일로 저장하여 인쇄 및 공유 가능
 - 학습 진행률 자동 추적 및 표시
 
+## 🔒 개인정보 보호 설계
+
+이 프로젝트는 **온디바이스 데이터 관리** 철학으로 설계되었습니다:
+
+- ✅ **서버 없음**: 모든 데이터는 사용자 브라우저에만 저장
+- ✅ **개인정보 수집 없음**: 외부 서버로 어떤 데이터도 전송하지 않음
+- ✅ **익명 모드 지원**: 이미지 생성 시 개인정보를 보호
+- ✅ **완전한 데이터 통제권**: 학생이 자신의 데이터를 완전히 관리
+
 ## 기술적 특징
-- 자동 저장 및 불러오기 기능 (LocalStorage 활용)
-- 반응형 디자인으로 다양한 디바이스에서 사용 가능
-- PDF 생성 시 로딩 인디케이터 표시
-- 섹션별 PDF 페이지 분할 처리
 
-## 최근 업데이트 (2025.9.5)
-1. **일정 전면 개편**
-   - 10월 17일~19일로 날짜 변경
-   - 제주항공 편명 업데이트 (7C711/7C702)
-   - 베스트웨스턴제주호텔로 숙소 변경
+### PWA (Progressive Web App)
+- Service Worker를 통한 오프라인 지원
+- 모바일 홈 화면에 설치 가능
+- 네트워크 연결 없이도 작동
 
-2. **방문 장소 업데이트**
-   - 1일차: 오설록 티뮤지엄 추가
-   - 2일차: 제주해녀박물관, 제주하도카약, 넥슨컴퓨터박물관으로 변경
-   - 3일차: 아르떼뮤지엄 제주 집중 체험
+### 데이터 관리
+- LocalStorage를 활용한 자동 저장
+- JSON 형식의 백업/복원 기능
+- Base64 인코딩을 통한 이미지 저장
 
-3. **안전 및 준비물 강화**
-   - 카약 체험 관련 안전사항 및 준비물 추가
-   - 신분증 및 학생증 필수 지참 안내 강화
+### UI/UX
+- 반응형 디자인 (Tailwind CSS)
+- 다크 테마 적용
+- 직관적인 탭 네비게이션
+- 실시간 진행률 표시
 
-## 사용 방법
-1. 안내/일정 탭에서 기본 정보를 입력합니다.
-2. 각 일차별 탭으로 이동하여 방문한 장소에서의 학습 내용을 기록합니다.
-3. 각 일차가 끝나면 "일차 완료하고 이미지 저장하기" 버튼을 클릭합니다.
-4. 모든 일차 학습이 완료되면 3일차 탭의 "최종 통합 보고서 만들기" 버튼을 클릭합니다.
-5. 생성된 보고서를 PDF로 저장하거나 인쇄할 수 있습니다.
+## 설치 및 사용 방법
+
+### 웹에서 바로 사용
+1. https://plusiam.github.io/jeju-dadaiksun-workbook 접속
+2. 기본 정보 입력
+3. 각 일차별 학습 활동 수행
+4. 결과물 저장 및 공유
+
+### PWA로 설치 (권장)
+1. 위 사이트 접속 후 설치 프롬프트 확인
+2. "설치하기" 버튼 클릭
+3. 홈 화면에서 앱처럼 실행
+
+### 백업 및 복원
+1. **백업**: "작업 백업하기" 버튼으로 .jeju 파일 저장
+2. **복원**: "백업 불러오기"로 저장된 파일 선택
+3. 클라우드나 메신저로 파일 공유 가능
+
+## 브라우저 호환성
+
+| 브라우저 | 지원 여부 | PWA 설치 |
+|---------|----------|----------|
+| Chrome (PC/모바일) | ✅ | ✅ |
+| Edge | ✅ | ✅ |
+| Safari (iOS 16.4+) | ✅ | ✅ |
+| Samsung Internet | ✅ | ✅ |
+| Firefox | ✅ | ⚠️ (제한적) |
+
+## 파일 구조
+
+```
+jeju-dadaiksun-workbook/
+├── index.html          # 메인 HTML 파일
+├── app.js             # JavaScript 로직
+├── sw.js              # Service Worker
+├── manifest.json      # PWA 매니페스트
+├── icon-192.png       # PWA 아이콘 (192x192)
+├── icon-512.png       # PWA 아이콘 (512x512)
+├── README.md          # 프로젝트 문서
+└── LICENSE.md         # 라이선스 정보
+```
+
+## 개발자를 위한 정보
+
+### 기술 스택
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **CSS Framework**: Tailwind CSS (CDN)
+- **Libraries**: 
+  - html2canvas (이미지 생성)
+  - jsPDF (PDF 생성)
+- **PWA**: Service Worker, Web App Manifest
+- **Hosting**: GitHub Pages
+
+### 로컬 개발 환경 설정
+```bash
+# 저장소 클론
+git clone https://github.com/plusiam/jeju-dadaiksun-workbook.git
+
+# 디렉토리 이동
+cd jeju-dadaiksun-workbook
+
+# 로컬 서버 실행 (Python 3)
+python -m http.server 8000
+
+# 또는 Node.js의 http-server 사용
+npx http-server
+```
+
+### 기여 방법
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 라이선스
 
 이 프로젝트는 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 라이선스를 따릅니다.
-교육 목적으로는 자유롭게 사용 가능하나 상업적 이용은 금지됩니다.
+- ✅ 교육 목적으로 자유롭게 사용 가능
+- ✅ 수정 및 재배포 가능 (출처 표시 필수)
+- ❌ 상업적 이용 금지
+
+## 문의 및 지원
+
+- **개발**: AISL Lab
+- **문의**: [룰루랄라 한기쌤](https://www.facebook.com/playrurulala?locale=ko_KR)
+- **소속**: 2025년 대구 교사연구회
+- **이슈 제보**: [GitHub Issues](https://github.com/plusiam/jeju-dadaiksun-workbook/issues)
+
+## 업데이트 내역
+
+### v2.1.0 (2025.9.6)
+- PWA 지원 추가
+- 익명 모드 기능 추가
+- 홈 버튼 추가
+- 이미지 워터마크 자동 추가
+- JavaScript 코드 모듈화
+
+### v2.0.0 (2025.9.5)
+- 2025년 일정 전면 개편
+- 방문 장소 업데이트
+- PDF 생성 기능 개선
+- UI/UX 전면 개선
+
+### v1.0.0 (2024.10.1)
+- 초기 버전 출시
+
+---
+
+**Made with ❤️ for Jeju Field Trip Education**
