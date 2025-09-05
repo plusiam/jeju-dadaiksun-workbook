@@ -165,6 +165,32 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
+        
+        /* 학생 정보 입력 스타일 개선 */
+        .student-info-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .student-info-container select {
+            width: auto;
+            min-width: 80px;
+        }
+        .student-info-container input[type="text"] {
+            flex: 1;
+            min-width: 150px;
+        }
+        @media (max-width: 640px) {
+            .student-info-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .student-info-container select,
+            .student-info-container input[type="text"] {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -248,21 +274,21 @@
                                 </div>
                             </div>
 
-                            <!-- 개인 정보 (다다익선 맞춤형) -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                <div>
-                                    <label for="student_class" class="block text-sm font-medium text-gray-300">반 선택</label>
-                                    <select id="student_class" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
-                                        <option value="">반을 선택하세요</option>
-                                        <option value="글로컬 1반">🌏 글로컬 1반</option>
-                                        <option value="글로컬 2반">🌏 글로컬 2반</option>
-                                        <option value="글로컬 3반">🌏 글로컬 3반</option>
+                            <!-- 개인 정보 (글로컬 ( )반 이름 형식) -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-300 mb-2">학생 정보</label>
+                                <div class="student-info-container p-4 bg-slate-700 rounded-lg">
+                                    <span class="text-gray-300 font-medium">글로컬</span>
+                                    <select id="student_class" class="savable bg-gray-600 border-gray-500 rounded-md shadow-sm p-2">
+                                        <option value="">-</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
                                     </select>
+                                    <span class="text-gray-300 font-medium">반</span>
+                                    <input type="text" id="student_name" placeholder="이름 입력" class="savable bg-gray-600 border-gray-500 rounded-md shadow-sm p-2">
                                 </div>
-                                <div>
-                                    <label for="student_name" class="block text-sm font-medium text-gray-300">이름 <span id="name_label_suffix"></span></label>
-                                    <input type="text" id="student_name" placeholder="학생 이름을 입력하세요" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
-                                </div>
+                                <p class="text-xs text-gray-400 mt-2 ml-1">※ 모든 데이터는 본인 기기에만 저장되며, 외부로 전송되지 않습니다 (온디바이스)</p>
                             </div>
 
                             <!-- 익명 모드 옵션 추가 -->
