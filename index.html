@@ -248,19 +248,20 @@
                                 </div>
                             </div>
 
-                            <!-- 개인 정보 -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <!-- 개인 정보 (다다익선 맞춤형) -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div>
-                                    <label for="student_school" class="block text-sm font-medium text-gray-300">학교</label>
-                                    <input type="text" id="student_school" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
-                                </div>
-                                <div>
-                                    <label for="student_grade" class="block text-sm font-medium text-gray-300">학년</label>
-                                    <input type="text" id="student_grade" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                    <label for="student_class" class="block text-sm font-medium text-gray-300">반 선택</label>
+                                    <select id="student_class" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                        <option value="">반을 선택하세요</option>
+                                        <option value="글로컬 1반">🌏 글로컬 1반</option>
+                                        <option value="글로컬 2반">🌏 글로컬 2반</option>
+                                        <option value="글로컬 3반">🌏 글로컬 3반</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label for="student_name" class="block text-sm font-medium text-gray-300">이름 <span id="name_label_suffix"></span></label>
-                                    <input type="text" id="student_name" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
+                                    <input type="text" id="student_name" placeholder="학생 이름을 입력하세요" class="savable mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
                                 </div>
                             </div>
 
@@ -299,7 +300,15 @@
                                     <p class="text-xs text-gray-400 mt-1">팀장 포함 모든 팀원의 이름을 입력해주세요</p>
                                 </div>
                             </div>
-                            <h3 class="text-xl font-semibold text-blue-300 mb-4">인솔교사 비상 연락처</h3>
+                            
+                            <!-- 다다익선 정보 안내 -->
+                            <div class="p-4 bg-blue-900 bg-opacity-30 rounded-lg border border-blue-700">
+                                <h3 class="text-lg font-semibold text-blue-300 mb-2">🎓 다다익선 프로그램</h3>
+                                <p class="text-gray-300 text-sm">대구광역시교육청 글로컬 인재 양성 프로그램</p>
+                                <p class="text-gray-400 text-xs mt-1">글로컬 1반, 2반, 3반 학생들의 제주 현장학습 워크북입니다</p>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold text-blue-300 mb-4 mt-6">인솔교사 비상 연락처</h3>
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" id="teacher1_name" placeholder="선생님 1 이름" class="savable block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm p-2">
@@ -606,7 +615,7 @@
         </div>
         
         <footer class="mt-4 text-center text-sm text-gray-500">
-            <p>개발: AISL Lab | 문의: <a href="https://www.facebook.com/playrurulala?locale=ko_KR" target="_blank" class="text-blue-400 hover:text-blue-300">룰루랄라 한기쌤</a> | 2025년 대구 교사연구회</p>
+            <p>개발: AISL Lab | 문의: <a href="https://www.facebook.com/playrurulala?locale=ko_KR" target="_blank" class="text-blue-400 hover:text-blue-300">룰루랄라 한기쌤</a> | 2025년 대구 다다익선</p>
         </footer>
     </div>
 
