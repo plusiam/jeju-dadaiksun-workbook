@@ -44,6 +44,9 @@ function goToHome() {
     }
 }
 
+// window 객체에 goToHome 함수 추가 (인라인 onclick 이벤트를 위해)
+window.goToHome = goToHome;
+
 document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEY = 'jejuFieldTripData';
     const IMAGES_KEY = 'jejuFieldTripImages';
@@ -608,16 +611,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======== 개인/팀 모드 전환 기능 ========
     const modeRadios = form.querySelectorAll('input[name="mode"]');
     const teamInfoSection = document.getElementById('team_info_section');
-    const nameLabelSuffix = document.getElementById('name_label_suffix');
 
     const toggleMode = () => {
         const isTeamMode = form.querySelector('input[name="mode"]:checked').value === 'team';
         if (isTeamMode) {
             teamInfoSection.classList.remove('hidden');
-            nameLabelSuffix.textContent = '(내 이름)';
         } else {
             teamInfoSection.classList.add('hidden');
-            nameLabelSuffix.textContent = '';
         }
     };
 
@@ -692,27 +692,38 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ======== 탭 기능 ========
-    const tabButtons = document.getElementById('tab-buttons');
+    const tabButtons = document.querySelectorAll('#tab-buttons button');
     const tabPanels = document.querySelectorAll('#tab-content .tab-panel');
-    tabButtons.addEventListener('click', (e) => {
-        const targetButton = e.target.closest('button');
-        if (!targetButton) return;
-        const tabId = targetButton.dataset.tab;
-        
-        // 탭 버튼 스타일 업데이트
-        tabButtons.querySelectorAll('button').forEach(btn => {
-            btn.classList.remove('tab-active', 'bg-blue-600');
-            btn.classList.add('tab-inactive', 'bg-gray-700');
+    
+    // 각 탭 버튼에 직접 이벤트 리스너 추가
+    tabButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const tabId = button.dataset.tab;
+            if (!tabId) return;
+            
+            // 탭 버튼 스타일 업데이트
+            tabButtons.forEach(btn => {
+                btn.classList.remove('tab-active', 'bg-blue-600');
+                btn.classList.add('tab-inactive', 'bg-gray-700');
+            });
+            button.classList.add('tab-active', 'bg-blue-600');
+            button.classList.remove('tab-inactive', 'bg-gray-700');
+            
+            // 탭 패널 표시/숨김
+            tabPanels.forEach(panel => panel.classList.add('hidden'));
+            const targetPanel = document.getElementById(tabId);
+            if (targetPanel) {
+                targetPanel.classList.remove('hidden');
+            }
+            
+            // 진행 표시기 업데이트
+            updateProgressIndicator(tabId);
+            
+            console.log('Tab switched to:', tabId); // 디버깅용
         });
-        targetButton.classList.add('tab-active', 'bg-blue-600');
-        targetButton.classList.remove('tab-inactive', 'bg-gray-700');
-        
-        // 탭 패널 표시/숨김
-        tabPanels.forEach(panel => panel.classList.add('hidden'));
-        document.getElementById(tabId).classList.remove('hidden');
-        
-        // 진행 표시기 업데이트
-        updateProgressIndicator(tabId);
     });
 
     // ======== 결과 모달 및 인쇄 기능 ========
@@ -976,8 +987,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProgress();
             
             // 안내/일정 탭으로 초기화하고 진행 표시기 업데이트
-            tabButtons.querySelector('button[data-tab="guide"]').click();
-            updateProgressIndicator('guide');
+            const guideButton = document.querySelector('button[data-tab="guide"]');
+            if (guideButton) {
+                guideButton.click();
+            }
             
             showNotification('✅ 모든 내용과 저장된 이미지가 삭제되었습니다.', 'success');
         }
