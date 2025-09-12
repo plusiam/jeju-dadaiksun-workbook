@@ -1,19 +1,19 @@
-/* 인쇄 최적화 스타일시트 - 일정표 2페이지 분할 */
+/* 인쇄 최적화 스타일시트 - 개선된 2페이지 레이아웃 */
 @media print {
     /* 페이지 설정 */
     @page {
         size: A4;
-        margin: 15mm 10mm 15mm 10mm;
+        margin: 20mm 15mm 20mm 15mm; /* 상하좌우 여백 증가 */
     }
     
     @page :first {
-        margin-top: 10mm;
+        margin-top: 15mm;
     }
     
     /* 기본 설정 */
     body {
         font-size: 11pt !important;
-        line-height: 1.4 !important;
+        line-height: 1.5 !important; /* 줄간격 증가 */
         color: black !important;
         background: white !important;
     }
@@ -24,50 +24,57 @@
         padding: 0 !important;
     }
     
-    /* 제목 크기 조정 */
+    /* 제목 스타일 */
     h1 {
-        font-size: 20pt !important;
-        margin-bottom: 15px !important;
+        font-size: 22pt !important;
+        margin-bottom: 20px !important;
         page-break-after: avoid;
         color: #0066cc !important;
+        text-align: center !important;
     }
     
     h2 {
-        font-size: 14pt !important;
-        margin: 15px 0 10px 0 !important;
+        font-size: 15pt !important;
+        margin: 20px 0 12px 0 !important;
         page-break-after: avoid;
         color: #0066cc !important;
+        border-bottom: 2px solid #0066cc !important;
+        padding-bottom: 5px !important;
     }
     
     h3 {
-        font-size: 12pt !important;
+        font-size: 13pt !important;
+        margin: 15px 0 8px 0 !important;
         page-break-after: avoid;
         color: #333 !important;
     }
     
-    /* 테이블 스타일 */
+    /* 테이블 스타일 개선 */
     table {
         font-size: 10pt !important;
         page-break-inside: avoid;
         width: 100% !important;
         border-collapse: collapse !important;
+        margin-bottom: 20px !important;
     }
     
     th {
-        background: #e0e0e0 !important;
-        padding: 8px !important;
+        background: #e8e8e8 !important;
+        padding: 10px !important;
         font-size: 10pt !important;
         border: 1px solid #999 !important;
         color: black !important;
+        font-weight: bold !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
     
     td {
-        padding: 8px !important;
+        padding: 8px 10px !important;
         font-size: 10pt !important;
         border: 1px solid #ccc !important;
         color: black !important;
+        line-height: 1.4 !important;
     }
     
     /* 테이블 행이 페이지를 넘어가지 않도록 */
@@ -77,57 +84,94 @@
     
     /* 일차별 헤더 행 스타일 */
     .bg-slate-900, tr.bg-slate-900 {
-        background: #d0d0d0 !important;
+        background: #d8d8d8 !important;
         font-weight: bold !important;
+        font-size: 11pt !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
     
-    /* 1일차 테이블 행들 */
-    tbody tr:nth-child(1), /* 1일차 헤더 */
-    tbody tr:nth-child(2), /* 06:50 */
-    tbody tr:nth-child(3), /* 08:05 */
-    tbody tr:nth-child(4), /* 09:30 */
-    tbody tr:nth-child(5), /* 10:00 */
-    tbody tr:nth-child(6), /* 10:40~11:50 */
-    tbody tr:nth-child(7), /* 12:00~13:00 */
-    tbody tr:nth-child(8), /* 13:20~15:00 */
-    tbody tr:nth-child(9), /* 15:30~17:00 */
-    tbody tr:nth-child(10), /* 17:40~18:50 */
-    tbody tr:nth-child(11) /* 19:00 */ {
-        page-break-after: auto;
-        page-break-before: auto;
+    /* 페이지 분할 규칙 */
+    /* 1페이지: 일정표 + 숙소 정보 + 안전 수칙 */
+    .bg-slate-800:nth-child(2) { /* 일정표 섹션 */
+        page-break-after: avoid;
+        margin-bottom: 25px !important;
     }
     
-    /* 2일차 헤더에서 페이지 나누기 */
-    tbody tr:nth-child(12) {
-        page-break-before: always !important;
+    .bg-slate-800:nth-child(3) { /* 안전 수칙 섹션 */
+        page-break-after: always !important; /* 안전 수칙 후 페이지 나누기 */
+        margin-bottom: 0 !important;
     }
     
-    /* 정보 박스 스타일 */
+    /* 2페이지: 준비물 체크리스트부터 시작 */
+    .bg-slate-800:nth-child(4) { /* 준비물 체크리스트 섹션 */
+        page-break-before: always !important; /* 새 페이지에서 시작 */
+        margin-top: 0 !important;
+    }
+    
+    /* 정보 박스 스타일 개선 */
     .bg-yellow-900, .bg-blue-900, .bg-orange-900, .bg-red-900 {
-        background: #f5f5f5 !important;
-        border: 1px solid #999 !important;
-        padding: 10px !important;
-        margin: 15px 0 !important;
+        background: #f8f8f8 !important;
+        border: 2px solid #666 !important;
+        padding: 12px !important;
+        margin: 20px 0 !important;
         page-break-inside: avoid;
+        border-radius: 5px !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
     
-    /* 체크리스트 */
+    /* 숙소 정보 박스 */
+    .bg-yellow-900 {
+        background: #fffef0 !important;
+        border-color: #ffa500 !important;
+    }
+    
+    /* 학생 신분증 안내 박스 */
+    .bg-blue-900 {
+        background: #f0f8ff !important;
+        border-color: #0066cc !important;
+    }
+    
+    /* 개인 상비약 안내 박스 */
+    .bg-orange-900 {
+        background: #fff5e6 !important;
+        border-color: #ff8c00 !important;
+    }
+    
+    /* 비행기 반입금지 물품 박스 */
+    .bg-red-900 {
+        background: #fff0f0 !important;
+        border-color: #cc0000 !important;
+    }
+    
+    /* 체크리스트 스타일 개선 */
     #checklist {
         page-break-inside: avoid;
+        margin-top: 0 !important;
     }
     
     #checklist > div {
         page-break-inside: avoid;
-        margin-bottom: 15px;
+        margin-bottom: 20px !important;
+        padding: 10px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 5px !important;
+        background: #fafafa !important;
     }
     
-    /* 준비물 섹션 전체가 두 번째 페이지로 이동 */
-    .bg-slate-800:last-child {
-        page-break-before: auto;
+    #checklist label {
+        display: flex !important;
+        align-items: center !important;
+        padding: 5px 0 !important;
+        line-height: 1.4 !important;
+    }
+    
+    #checklist input[type="checkbox"] {
+        width: 15px !important;
+        height: 15px !important;
+        margin-right: 10px !important;
+        border: 2px solid #666 !important;
     }
     
     /* 색상 보존 */
@@ -143,14 +187,32 @@
         color: black !important;
     }
     
+    /* 강조 텍스트 색상 */
     .text-yellow-300.font-semibold {
-        color: #ff6600 !important;
+        color: #ff8c00 !important;
         font-weight: bold !important;
     }
     
     .text-red-300.font-semibold {
         color: #cc0000 !important;
         font-weight: bold !important;
+    }
+    
+    .text-blue-300.font-semibold {
+        color: #0066cc !important;
+        font-weight: bold !important;
+    }
+    
+    /* 리스트 스타일 개선 */
+    ul {
+        margin: 15px 0 !important;
+        padding-left: 25px !important;
+    }
+    
+    ul li {
+        margin: 8px 0 !important;
+        line-height: 1.5 !important;
+        color: black !important;
     }
     
     /* 불필요한 요소 숨기기 */
@@ -169,15 +231,18 @@
     #hide-guide-btn,
     #autosave-indicator,
     .bg-slate-800:first-child, /* 기본 정보 입력 섹션 숨기기 */
-    .mt-4.flex.justify-center /* 진행률 표시 숨기기 */ {
+    .mt-4.flex.justify-center, /* 진행률 표시 숨기기 */
+    button[onclick*="goToHome"], /* 홈 버튼 숨기기 */
+    .text-center:has(#download-guide-btn) /* 다운로드 버튼 영역 숨기기 */ {
         display: none !important;
     }
     
-    /* 배경색 있는 요소들 */
+    /* 배경색 있는 섹션 */
     .bg-slate-800 {
         background: white !important;
-        border: 1px solid #ccc !important;
-        margin-bottom: 20px !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 25px !important;
     }
     
     .bg-slate-700 {
@@ -199,21 +264,12 @@
     
     /* 여백 최적화 */
     p {
-        margin: 8px 0 !important;
-        color: black !important;
-    }
-    
-    ul, ol {
         margin: 10px 0 !important;
-        padding-left: 20px !important;
-    }
-    
-    li {
-        margin: 5px 0 !important;
         color: black !important;
+        line-height: 1.5 !important;
     }
     
-    /* 모달 관련 스타일은 그대로 유지 */
+    /* 모달 관련 스타일 */
     body * {
         visibility: hidden;
     }
@@ -222,12 +278,13 @@
         visibility: visible !important;
     }
     
-    /* 일정표 전용 인쇄 모드 */
-    .print-schedule #guide-content {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+    /* 페이지 번호 표시를 위한 카운터 (선택사항) */
+    @page {
+        @bottom-center {
+            content: counter(page) " / " counter(pages);
+            font-size: 10pt;
+            color: #666;
+        }
     }
 }
 
@@ -236,8 +293,27 @@
     .print-preview {
         max-width: 210mm;
         margin: 0 auto;
-        padding: 15mm 10mm;
+        padding: 20mm 15mm;
         background: white;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .page-break {
+        border-top: 3px dashed #ccc;
+        margin: 30px 0;
+        padding-top: 30px;
+        position: relative;
+    }
+    
+    .page-break::before {
+        content: "페이지 나누기";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 0 10px;
+        color: #999;
+        font-size: 12px;
     }
 }
